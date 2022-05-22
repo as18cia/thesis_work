@@ -1,0 +1,6 @@
+* Research fields don't have papers, not logically but in the graph triples
+* Papers have search fields in the graph
+
+* Research fields don't have Contributions
+
+* each paper has exactly one research field

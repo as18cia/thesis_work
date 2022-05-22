@@ -1,9 +1,9 @@
 import queue
 import threading
 
-from tqdm import tqdm
 import pandas as pd
 
+from modules.multi_thread_caller import MultiThreadCaller
 from modules.orkg_client import OrkgClient
 
 
@@ -11,14 +11,17 @@ class ReFieldsToPapers:
 
     def __init__(self):
         self.client = OrkgClient()
+        self.caller = MultiThreadCaller()
 
     def get_research_field_to_papers(self):
         # todo: how about smart reviews and so on ???
         # getting all papers
         papers = self.client.get_resources_by_class("Paper")
+        papers = [item[0] for item in papers]
 
         # getting statement for papers which contain predicate P30 -> ResearchField
-        statements = self._get_statements_for_papers(papers)
+        callable_fun = self.client.get_statement_based_on_predicate
+        statements = self.caller.get_statements_for_papers(papers, callable_fun, 50, "P30")
         research_field_to_papers = {}
         for s in statements:
             for statement in s:
@@ -30,6 +33,7 @@ class ReFieldsToPapers:
                         "papers": [statement["subject"]["id"]]
                     }
 
+        # turning the dictionary into a list of tuples
         research_field_to_papers_list = [(key, value["label"], len(value["papers"]), value["papers"]) for key, value in
                                          research_field_to_papers.items()]
 
@@ -46,31 +50,6 @@ class ReFieldsToPapers:
         df = pd.DataFrame(research_field_to_papers_list,
                           columns=["ResearchFieldId", "ResearchFieldLabel", "#OfPapers", "PaperIds"])
         df.to_csv(r"C:\Users\mhrou\Desktop\Orkg\ResearchFields_to_Papers.csv", index=False)
-
-    def _get_statements_for_papers(self, papers: list):
-        in_q = queue.Queue()
-        out_q = queue.Queue()
-        for i, paper in enumerate(papers):
-            in_q.put((i, paper))
-
-        threads = [threading.Thread(target=self._work, args=(in_q, out_q)) for i in range(45)]
-
-        # starting the threads
-        for thread in threads:
-            thread.start()
-
-        # waiting for the threads to finish
-        for thread in threads:
-            thread.join()
-
-        return list(out_q.queue)
-
-    def _work(self, in_q: queue.Queue, out_q: queue.Queue):
-        while not in_q.empty():
-            item = in_q.get()
-            index = item[0]
-            out_q.put(self.client.get_statement_based_on_predicate(item[1][0], "P30"))
-            print(index)
 
 
 if __name__ == '__main__':
