@@ -68,5 +68,8 @@ class ReFieldsToContribution:
 
 
 if __name__ == '__main__':
-    re = ReFieldsToContribution()
-    re.research_field_to_contribution()
+    # re = ReFieldsToContribution()
+    # re.research_field_to_contribution()
+
+    df = pd.read_csv(r"C:\Users\mhrou\Desktop\Orkg\ResearchFields_to_Contributions.csv")
+    print(df)
