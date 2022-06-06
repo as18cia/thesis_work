@@ -21,7 +21,7 @@ class ReFieldsToPapers:
 
         # getting statement for papers which contain predicate P30 -> ResearchField
         callable_fun = self.client.get_statement_based_on_predicate
-        statements = self.caller.get_statements_for_papers(papers, callable_fun, 50, "P30")
+        statements = self.caller.run(papers, callable_fun, 50, "P30")
         research_field_to_papers = {}
         for s in statements:
             for statement in s:

@@ -35,7 +35,7 @@ class ReFieldsToContribution:
     def _get_paper_to_contribution(self, papers):
         paper_to_contribution = {}
         callable_fun = self.orkg_client.get_statement_based_on_predicate
-        statements = self.caller.get_statements_for_papers(papers, callable_fun, 50, "P31")
+        statements = self.caller.run(papers, callable_fun, 50, "P31")
         for statement in statements:
             for s in statement:
                 if s["subject"]["id"] in paper_to_contribution:

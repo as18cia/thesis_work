@@ -8,7 +8,7 @@ class Graphs:
     def value_graph():
         df = pd.read_csv(r"C:\Users\mhrou\Desktop\Orkg\ResearchFields_to_Contributions.csv")
         contributions1, contributions2 = list(df["#OfContributions"][:260]), list(df["#OfContributions"][260:])
-
+        # contributions1 = contributions1[1:]
         plt.bar([i for i in range(len(contributions1))], contributions1)
         plt.yticks([0, 100, 250, 500, 1000, 1500, 2000, 3000, 4000])
         plt.show()

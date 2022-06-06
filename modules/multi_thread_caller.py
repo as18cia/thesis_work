@@ -1,16 +1,17 @@
 import queue
 import threading
 from typing import Callable
+from collections.abc import Iterable
 
 
 class MultiThreadCaller:
 
-    def get_statements_for_papers(self, papers: list, function_to_call: Callable, number_of_threads: int,
-                                  *args) -> list:
+    def run(self, items: list, function_to_call: Callable, number_of_threads: int,
+            *args) -> list:
         in_q = queue.Queue()
         out_q = queue.Queue()
-        for i, paper in enumerate(papers):
-            in_q.put((i, paper))
+        for i, item in enumerate(items):
+            in_q.put((i, item))
 
         threads = [threading.Thread(target=self._work, args=(in_q, out_q, function_to_call, *args)) for i in
                    range(number_of_threads)]
@@ -30,5 +31,10 @@ class MultiThreadCaller:
         while not in_q.empty():
             item = in_q.get()
             index = item[0]
-            out_q.put(function_to_call(item[1], *args))
+            result = function_to_call(item[1], *args)
+            if isinstance(result, Iterable):
+                for r in result:
+                    out_q.put(r)
+            else:
+                out_q.put(result)
             print(index)
