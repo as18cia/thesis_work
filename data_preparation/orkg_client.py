@@ -1,18 +1,26 @@
 import os
-
 from orkg import ORKG
 
 
 class OrkgClient:
+    """"
+    This class contains some functions to retrieve and pre-process data from the orkg api
+    """
 
     def __init__(self):
         self.connection = self._create_connection()
 
     @staticmethod
     def _create_connection():
+        """
+        to use this class you need to provide "orkg_email" and "orkg_password" as env variables
+        """
         return ORKG(host="https://www.orkg.org/orkg/", creds=(os.environ["orkg_email"], os.environ["orkg_password"]))
 
     def get_all_resources(self):
+        """"
+        Gets all resources from the orkg and return only the id, the label the classes of the resource
+        """
         resources = []
         i = 0
         while True:
@@ -28,6 +36,9 @@ class OrkgClient:
             i = i + 1
 
     def get_resources_by_class(self, resource_class: str) -> list[tuple]:
+        """
+        Retrieves the resources by class id and returns the id, label and classes
+        """
         # resources can be Paper or ResearchField for example
         resources = []
         i = 0
@@ -48,7 +59,9 @@ class OrkgClient:
             # increasing the page number
             i = i + 1
 
+    # todo: refactor this
     def get_statement_based_on_predicate(self, subject: str, predicate_id: str = None):
+
         statements = []
 
         i = 0
@@ -72,7 +85,10 @@ class OrkgClient:
 
         return statements
 
-    def get_doi_for_paper(self, paper):
+    def get_doi_for_paper(self, paper: str):
+        """"
+        returns the doi identifier for a paper given the paper_id
+        """
         res = self.get_statement_based_on_predicate(paper, "P26")
         doi = set()
         for r in res:
@@ -82,28 +98,13 @@ class OrkgClient:
         elif len(doi) == 1:
             return doi.pop()
         else:
-            print("more than one doi")
+            print("warning: more than one doi")
             return doi.pop()
 
-    def get_all_statements(self):
-        statements = []
-        i = 0
-        while True:
-            # getting resources with class ResearchField
-            response = self.connection.statements.get(params={"sort": "id", "page": i, "size": 1000})
 
-            for item in response.content:
-                statements.append((item["id"], item["subject"], item["predicate"], item["object"]))
-
-            if len(response.content) == 0:
-                statements.sort(key=lambda x: int(x[0][1:]))
-                return statements
-
-            # increasing the page number
-            i = i + 1
-
-
-# this section is just for testing
+""""
+The following section is for testing
+"""
 if __name__ == '__main__':
     client = OrkgClient()
     re = client.get_doi_for_paper("R3046")

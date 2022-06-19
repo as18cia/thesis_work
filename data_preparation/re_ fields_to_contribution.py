@@ -6,12 +6,20 @@ from data_preparation.orkg_client import OrkgClient
 
 
 class ReFieldsToContribution:
+    """"
+    This class is to map the ORKG Research fields to the ORKG Contributions, provided a mapping from Research fields
+    to ORKG papers already exists
+    Please check ./re_fields_to_papers.py for the script to create a mapping from Research fields to ORKG papers
+    """
 
     def __init__(self):
         self.caller = MultiThreadCaller()
         self.orkg_client = OrkgClient()
 
     def research_field_to_contribution(self):
+        """"
+        Creates the mapping from the ORKG Research fields to the ORKG Contributions
+        """
         # load the re_field to paper csv
         df = pd.read_csv(r"C:\Users\mhrou\Desktop\Orkg\ResearchFields_to_Papers.csv")
 
@@ -54,7 +62,8 @@ class ReFieldsToContribution:
 
         return paper_to_contribution
 
-    def _create_re_field_to_contribution(self, df, paper_to_contribution):
+    @staticmethod
+    def _create_re_field_to_contribution(df, paper_to_contribution):
         re_fi_to_con = []
         for i, data in df.iterrows():
             contributions = set()
@@ -67,9 +76,9 @@ class ReFieldsToContribution:
         return re_fi_to_con
 
 
+""""
+The following section is for testing
+"""
 if __name__ == '__main__':
-    # re = ReFieldsToContribution()
-    # re.research_field_to_contribution()
-
-    df = pd.read_csv(r"C:\Users\mhrou\Desktop\Orkg\ResearchFields_to_Contributions.csv")
-    print(df)
+    re = ReFieldsToContribution()
+    re.research_field_to_contribution()

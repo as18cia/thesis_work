@@ -4,20 +4,28 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from data_preparation.multi_thread_caller import MultiThreadCaller
 from data_preparation.orkg_client import OrkgClient
 from data_preparation.re_fields_to_papers import ReFieldsToPapers
-from path_creator import path, get_file_names
-import patoolib
+from path_creator import path
 import time
 import ast
 
 
 class PapersToAbstracts:
+    """
+    This is the main module in this folder.
+    This module contains multiple functions that do the following:
+        * mapping orkg papers to their doi
+        * retrieving statements with contributions as subject id
+        * retrieving abstracts for papers
+        * merging the data
+        * cleaning the data
+        * ...
+    """
 
     def __init__(self):
         self.client = OrkgClient()
-        self.papers_to_re = ReFieldsToPapers().create_paper_to_re_mapping()
+        # self.papers_to_re = ReFieldsToPapers().create_paper_to_re_mapping()
 
     def get_all_papers_with_doi(self):
         # todo: clean the data if this function is to be used again
@@ -47,23 +55,6 @@ class PapersToAbstracts:
         df = pd.DataFrame(all_statements, columns=["id", "subject", "predicate", "object"])
         df = self._process_statements(df)
         df.to_csv(path("contribution_statements.csv"), index=False)
-
-    def get_abstracts_for_papers(self):
-        df = pd.read_csv(path("papers_to_abstracts.csv"))
-        failed_ids = set()
-        for i, data in tqdm(df.iterrows(), total=len(df)):
-            if pd.isna(data["paper_abstract"]):
-                if not pd.isna(data["paper_doi"]):
-                    try:
-                        pass
-                        # df.at[i, "paper_abstract"] = self.metadata.by_doi(data["paper_doi"])
-                    except:
-                        failed_ids.add(data["paper_id"])
-                        time.sleep(3)
-
-        df.to_csv(path("papers_to_abstracts_v2.csv"), index=False)
-        df_failed = pd.DataFrame(list(failed_ids), columns=["id"])
-        df_failed.to_csv(path("failed_to.csv"), index=False)
 
     def get_papers_to_contribution(self):
         papers = pd.read_csv(path("all_papers.csv"))["Id"].tolist()
@@ -107,6 +98,24 @@ class PapersToAbstracts:
             else:
                 print("found one")
         return df
+
+    @staticmethod
+    def get_abstracts_for_papers():
+        df = pd.read_csv(path("papers_to_abstracts.csv"))
+        failed_ids = set()
+        for i, data in tqdm(df.iterrows(), total=len(df)):
+            if pd.isna(data["paper_abstract"]):
+                if not pd.isna(data["paper_doi"]):
+                    try:
+                        pass
+                        # df.at[i, "paper_abstract"] = self.metadata.by_doi(data["paper_doi"])
+                    except:
+                        failed_ids.add(data["paper_id"])
+                        time.sleep(3)
+
+        df.to_csv(path("papers_to_abstracts_v2.csv"), index=False)
+        df_failed = pd.DataFrame(list(failed_ids), columns=["id"])
+        df_failed.to_csv(path("failed_to.csv"), index=False)
 
     @staticmethod
     def sort_drop_reorder_for_training(df: pd.DataFrame):
@@ -189,13 +198,19 @@ class PapersToAbstracts:
 
         return df
 
+    @staticmethod
+    def removing_duplicates():
+        df = pd.read_csv(path("merged_statements_to_abstracts_v3_pruned.csv"))
+        df = df.drop_duplicates(subset=['paper_id', 'predicate_label', 'object_label'], keep='last').reset_index(
+            drop=True)
+        df = df.drop_duplicates(subset=['paper_id', 'predicate_label', 'object_id'], keep='last').reset_index(drop=True)
+        df.to_csv(path("merged_statements_to_abstracts_v3_pruned_deduplicated.csv"), index=False)
+
 
 def main():
     p2ab = PapersToAbstracts()
-    p2ab.merge_all_data()
+    p2ab.removing_duplicates()
 
 
 if __name__ == '__main__':
-
     main()
-

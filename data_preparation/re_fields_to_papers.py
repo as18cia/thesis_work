@@ -1,7 +1,4 @@
 import ast
-import queue
-import threading
-
 import pandas as pd
 
 from data_preparation.multi_thread_caller import MultiThreadCaller
@@ -10,13 +7,18 @@ from path_creator import path
 
 
 class ReFieldsToPapers:
+    """"
+    This class is to map the ORKG Research fields to the ORKG papers
+    """
 
     def __init__(self):
         self.client = OrkgClient()
         self.caller = MultiThreadCaller()
 
     def get_research_field_to_papers(self):
-        # todo: how about smart reviews and so on ???
+        """"
+        Creates the ResearchFields_to_Papers.csv file
+        """
         # getting all papers
         papers = self.client.get_resources_by_class("Paper")
         papers = [item[0] for item in papers]
@@ -54,6 +56,9 @@ class ReFieldsToPapers:
 
     @staticmethod
     def create_paper_to_re_mapping():
+        """"
+        From the ResearchFields_to_Papers mapping creates a python dictionary for use by other functions
+        """
         df = pd.read_csv(path("ResearchFields_to_Papers.csv"))
         mapping = {}
         for i, data in df.iterrows():
@@ -71,6 +76,9 @@ class ReFieldsToPapers:
         return mapping
 
 
+""""
+The following section is for testing
+"""
 if __name__ == '__main__':
     re = ReFieldsToPapers()
     s = re.create_paper_to_re_mapping()

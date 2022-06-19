@@ -5,9 +5,19 @@ from collections.abc import Iterable
 
 
 class MultiThreadCaller:
+    """"
+    A class to speed up the retrieving of data from the orkg where batch queries are not available
+    This works by running multiple threads with a target function
+    """
 
     def run(self, items: list, function_to_call: Callable, number_of_threads: int,
             *args) -> list:
+        """"
+        This functions runs the target function in multiple threads (number_of_threads arg)
+        The items (for example paper_ids) are the main arguments for the target function \
+        with the option to provide additional args (*args)
+        A list of results are returned
+        """
         in_q = queue.Queue()
         out_q = queue.Queue()
         for i, item in enumerate(items):
