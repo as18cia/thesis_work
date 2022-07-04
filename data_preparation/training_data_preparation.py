@@ -1,9 +1,11 @@
 import json
+import re
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from data_preparation.named_entities import Ner
 from data_preparation.orkg_client import OrkgClient
 from data_preparation.re_fields_to_papers import ReFieldsToPapers
 from path_creator import path
@@ -24,7 +26,8 @@ class PapersToAbstracts:
     """
 
     def __init__(self):
-        self.client = OrkgClient()
+        # self.client = OrkgClient()
+        self.classificator = Ner()
         # self.papers_to_re = ReFieldsToPapers().create_paper_to_re_mapping()
 
     def get_all_papers_with_doi(self):
@@ -206,11 +209,162 @@ class PapersToAbstracts:
         df = df.drop_duplicates(subset=['paper_id', 'predicate_label', 'object_id'], keep='last').reset_index(drop=True)
         df.to_csv(path("merged_statements_to_abstracts_v3_pruned_deduplicated.csv"), index=False)
 
+    def ner(self):
+        df = pd.read_csv(path("worldcities.csv"))
+        cities = [x.lower() for x in df["city"].tolist()]
+        df = pd.read_csv(path("contries.csv"))
+        contries = [x.lower() for x in df["Name"].tolist()]
+        locations = cities + contries
+
+        df = pd.read_csv(path("first_iter.csv"))
+        to_remove = []
+        for i, data in tqdm(df.iterrows(), total=len(df)):
+            if len(data["object_label"].strip()) < 3:
+                to_remove.append(i)
+                continue
+            # if True:  # pd.isna(data["ner"]):
+            #     ner = self._ner(data["object_label"], data["predicate_label"], locations)
+            #     if ner:
+            #         df.at[i, "ner"] = ner
+            #         continue
+            #
+            #     pos = self.pos_for_label(data["object_label"])
+            #     if pos:
+            #         df.at[i, "ner"] = pos
+            #         continue
+            #
+            #     phrase_type = self.phrase_type(data["object_label"])
+            #     if phrase_type:
+            #         df.at[i, "ner"] = phrase_type
+            #         continue
+        df = df.drop(df.index[to_remove])
+        df.to_csv(path("first_iter.csv"), index=False)
+
+    def _ner(self, label: str, predicate: str, locations: list):
+        # todo: adj phrases to noun phrases
+
+        # cleaning
+        label = label.strip()
+
+        # research problem
+        if predicate.strip().lower() == "has research problem":
+            return "research problem"
+
+        # number
+        if label.isnumeric():
+            if len(label) == 4:
+                # check if year
+                if label[0] in ["1", "2"]:
+                    return "year"
+        if self.is_number(label):
+            return "number"
+
+        # acronyms
+        if re.fullmatch(r'[A-Z]+', string=label):
+            return "acronym"
+
+        # urls
+        if label.startswith("http"):
+            return "url"
+
+        # locations
+        if label.lower() in locations or predicate.lower() in ["country, city, location, continent", "has location",
+                                                               "study location", "countries"]:
+            return "location"
+
+        # check if unit measure
+        s = label.split(" ")
+        for i in s:
+            # if self.is_number(i):
+            #     return "possible unit"
+            if re.match("[0-9]+[.,]*[0-9]*", i):
+                return "count/measurement"
+
+    @staticmethod
+    def is_number(label):
+        if label.startswith("-"):
+            label = label[1:]
+        try:
+            float(label)
+            return True
+        except:
+            pass
+
+        try:
+            int(label)
+            return True
+        except:
+            pass
+        return False
+
+    def pos_for_label(self, label: str):
+        labels = label.strip().lower().split(" ")
+        if len(labels) != 1:
+            return
+        ner = self.classificator.get_pos_for_word(labels[0])
+        if ner == "PROPN":
+            return "NOUN"
+        return ner
+
+    def phrase_type(self, phrase):
+        phrase = phrase.strip().lower().split(" ")
+        cleaner = []
+        for l in phrase:
+            if len(l) > 2:
+                cleaner.append(l)
+
+        if len(cleaner) > 4:
+            return
+
+        poses = []
+        for l in cleaner:
+            poses.append(self.classificator.get_pos_for_word(l))
+
+        if poses:
+            if poses[-1] in ["PROPN", "NOUN"]:
+                return "noun phrase"
+
+            if poses[-1] == "ADJ":
+                return "adjective phrase"
+
+    def cleaning_pass(self):
+        df = pd.read_csv(path("data_set.csv"))
+
+        re_fields = df["research_field_label"].tolist()
+        counts = []
+        for x in set(re_fields):
+            counts.append((x, re_fields.count(x)))
+
+        counts.sort(key=lambda x: x[1], reverse=True)
+        resutl = [x[0] for x in counts if x[1] < 2]
+        print(resutl)
+        # to_delte = []
+        # for i, data in df.iterrows():
+        #     if data["research_field_label"] in resutl:
+        #         to_delte.append(i)
+        #
+        # df = df.drop(df.index[to_delte])
+        # df.to_csv(path("data_set.csv"), index=False)
+
 
 def main():
     p2ab = PapersToAbstracts()
-    p2ab.removing_duplicates()
+    p2ab.cleaning_pass()
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+
+    df = pd.read_csv(path("data_set.csv"))
+    ner = df["ner"].tolist()
+    counts = []
+    for x in set(ner):
+        counts.append((x, ner.count(x)))
+
+    counts.sort(key=lambda x: x[1], reverse=True)
+
+    xx = []
+    for x in counts:
+        xx.append((x[0], x[1], str(round(x[1] / 5930 * 100, 1)) + "%"))
+
+    print(pd.DataFrame(xx, columns=["Category", "# of occurrences", "percentage in dataset"]))
