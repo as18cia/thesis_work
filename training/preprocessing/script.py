@@ -28,8 +28,9 @@ def split_training_and_evaluation():
     for i, data in df.iterrows():
         try:
             if not find_word_in_text(data["object_label"])(data["paper_abstract"]):
-                to_delete.append(i)
-                continue
+                if len(data["object_label"]) <= 4 and is_bad(data["object_label"], data["paper_abstract"]):
+                    to_delete.append(i)
+                    continue
         except:
             pass
 
@@ -40,7 +41,7 @@ def split_training_and_evaluation():
             df.at[i, "end_ind"] = end
         except:
             pass
-
+    print(len(to_delete))
     # dropping bad data
     df.drop(to_delete, inplace=True)
     predicates = df["predicate_label"].tolist()
@@ -56,8 +57,8 @@ def split_training_and_evaluation():
         else:
             data = [x.tolist() for _, x in (df[df["predicate_label"] == p].iterrows())]
             shuffle(data)
-            training_set.extend(data[:round(0.8 * len(data))])
-            evaluation_set.extend(data[round(0.8 * len(data)):])
+            training_set.extend(data[:round(0.74 * len(data))])
+            evaluation_set.extend(data[round(0.74 * len(data)):])
 
     data_set = {
         "training_set": training_set,
@@ -93,6 +94,13 @@ def find_word_in_text(w):
     return re.compile(r'\b({0})\b'.format(r'{}'.format(w)), flags=re.IGNORECASE).search
 
 
+def is_bad(s, s2):
+    index = s2.find(s) + len(s)
+    if s2[index].isalpha():
+        return True
+    else:
+        return False
+
+
 if __name__ == '__main__':
     pass
-

@@ -9,8 +9,8 @@ from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 from pathlib import Path
 
 
-def load_data():
-    data = json.loads(Path("../preprocessing/data_set_split_how.json").read_bytes())
+def load_data(question_label: str, training_test_len=None, eval_test_len=None):
+    data = json.loads(Path("../preprocessing/data_set_split_{}.json".format(question_label)).read_bytes())
     # removing items with bad start/end position for answers
     to_remove = []
     for k, v in data.items():
@@ -48,8 +48,10 @@ def load_data():
     train_answers = modified_train_answers
     eval_answers = modified_eval_answers
 
-    x = 10
-    return train_contexts[:x], train_questions[:x], train_answers[:x], eval_contexts[:x], eval_questions[:x], eval_answers[:x]
+    x = training_test_len if training_test_len else len(train_contexts)
+    u = eval_test_len if eval_test_len else len(train_contexts)
+    return train_contexts[:x], train_questions[:x], train_answers[:x], eval_contexts[:u], eval_questions[
+                                                                                          :u], eval_answers[:u]
 
 
 def add_token_positions(encodings, answers, tokenizer):
@@ -66,7 +68,7 @@ def add_token_positions(encodings, answers, tokenizer):
         # todo: how many abstracts have been truncated
         if start_positions[-1] is None:
             count += 1
-            start_positions[-1] = tokenizer.model_max_length
+            start_positions[-1] = 1000
 
         # if end position is None, the 'char_to_token' function points to the space after the correct token, so add - 1
         if end_positions[-1] is None:
@@ -74,16 +76,17 @@ def add_token_positions(encodings, answers, tokenizer):
             # if end position is still None the answer passage has been truncated
             if end_positions[-1] is None:
                 count += 1
-                end_positions[-1] = tokenizer.model_max_length
+                end_positions[-1] = 1000
 
     # print(count)
     # todo: what is this doing ?
     encodings.update({'start_positions': start_positions, 'end_positions': end_positions})
 
 
-def tokenize():
-    train_contexts, train_questions, train_answers, eval_contexts, eval_questions, eval_answers = load_data()
-    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-cased-distilled-squad")
+def tokenize(tokenizer, question_label, training_test_len=None, eval_test_len=None):
+    train_contexts, train_questions, train_answers, eval_contexts, eval_questions, eval_answers = load_data(
+        question_label, training_test_len, eval_test_len)
+    tokenizer = tokenizer
 
     # todo: what should be done about truncation
     train_encodings = tokenizer(train_contexts, train_questions, truncation=True, padding=True)
@@ -96,4 +99,5 @@ def tokenize():
 
 
 if __name__ == '__main__':
-    tokenize()
+    pass
+
