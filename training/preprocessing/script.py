@@ -23,7 +23,6 @@ def split_training_and_evaluation():
     # df["end_ind"] = None
 
     #  todo: is there some issue with the data
-    #  todo: < 10 -> training not evaluation
     to_delete = []
     for i, data in df.iterrows():
         try:
@@ -103,4 +102,20 @@ def is_bad(s, s2):
 
 
 if __name__ == '__main__':
-    pass
+    # pass
+    a = {
+        "accuracy": 0.32915057915057916,
+        "containment": 0.4140926640926641,
+        "no answer": 0.13996138996138996,
+        "recall_exact": 0.20614035087719298,
+        "precision_exact": 0.382396449704142,
+        "f1_score_exact": 0.2678756476683938,
+        "recall_containment": 0.2631578947368421,
+        "precision_containment": 0.4881656804733728,
+        "f1_score_containment": 0.3419689119170984
+    }
+
+    for k, v in a.items():
+        a[k] = float("{:.3f}".format(v)) * 100
+
+    print(a)

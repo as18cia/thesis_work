@@ -7,13 +7,13 @@ class MyDataset(Dataset):
         self.encodings = encodings
 
     def __getitem__(self, idx):
-        try:
-            adfa = {}
-            for key, val in self.encodings.items():
-                adfa[key] = torch.tensor(val[idx])
-            return adfa
-        except:
-            pass
+        return {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
 
     def __len__(self):
         return len(self.encodings.input_ids)
+
+
+
+if __name__ == '__main__':
+
+    print("{:.2f}".format(0.2345))

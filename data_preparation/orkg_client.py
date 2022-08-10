@@ -15,7 +15,7 @@ class OrkgClient:
         """
         to use this class you need to provide "orkg_email" and "orkg_password" as env variables
         """
-        return ORKG(host="https://www.orkg.org/orkg/", creds=(os.environ["orkg_email"], os.environ["orkg_password"]))
+        return ORKG(host="https://orkg.org/", creds=(os.environ["orkg_email"], os.environ["orkg_password"]))
 
     def get_all_resources(self):
         """"
@@ -45,7 +45,7 @@ class OrkgClient:
         while True:
             # getting resources with class ResearchField
             response = self.connection.classes.get_resource_by_class(resource_class,
-                                                                     params={"sort": "id", "page": i, "size": 200})
+                                                                     params={"sort": "id", "page": i, "size": 1})
 
             for item in response.content:
                 if item["id"] == "Custom_ID":
@@ -59,14 +59,10 @@ class OrkgClient:
             # increasing the page number
             i = i + 1
 
-    # todo: refactor this
     def get_statement_based_on_predicate(self, subject: str, predicate_id: str = None):
-
         statements = []
-
         i = 0
         while True:
-            # getting resources with class ResearchField
             response = self.connection.statements.get_by_subject(subject,
                                                                  params={"sort": "id", "page": i, "size": 1000})
             for item in response.content:

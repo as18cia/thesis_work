@@ -7,7 +7,7 @@ This module contains some helpers to retrieve files from the system
 
 
 def path(file_name: str):
-    return r"C:\Users\mhrou\Desktop\Orkg\\" + file_name
+    return "./data/" + file_name
 
 
 def get_file_names(directory: str, ends: str):

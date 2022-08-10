@@ -47,4 +47,5 @@ class MultiThreadCaller:
                     out_q.put(r)
             else:
                 out_q.put(result)
-            print(index)
+            # you can un-print this to see the progress of the work
+            # print(index)

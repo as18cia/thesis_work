@@ -9,12 +9,20 @@ from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 from pathlib import Path
 
 
-def load_data(question_label: str, training_test_len=None, eval_test_len=None):
+def load_data(question_label: str, cased_model: bool, training_test_len=None, eval_test_len=None):
     data = json.loads(Path("../preprocessing/data_set_split_{}.json".format(question_label)).read_bytes())
     # removing items with bad start/end position for answers
     to_remove = []
     for k, v in data.items():
         for i, item in enumerate(v):
+            data[k][i][2] = data[k][i][2].strip()
+
+            if not cased_model:
+                data[k][i][0] = data[k][i][0].strip().lower()
+                data[k][i][1] = data[k][i][1].strip().lower()
+                data[k][i][2] = data[k][i][2].lower()
+            if cased_model:
+                data[k][i][1] = data[k][i][1].strip().capitalize()
             if pd.isna(item[3]) or pd.isna(item[4]):
                 to_remove.append((k, i))
 
@@ -83,14 +91,14 @@ def add_token_positions(encodings, answers, tokenizer):
     encodings.update({'start_positions': start_positions, 'end_positions': end_positions})
 
 
-def tokenize(tokenizer, question_label, training_test_len=None, eval_test_len=None):
+def tokenize(tokenizer, question_label, cased_model: bool, training_test_len=None, eval_test_len=None):
     train_contexts, train_questions, train_answers, eval_contexts, eval_questions, eval_answers = load_data(
-        question_label, training_test_len, eval_test_len)
+        question_label, cased_model, training_test_len, eval_test_len)
     tokenizer = tokenizer
 
     # todo: what should be done about truncation
-    train_encodings = tokenizer(train_contexts, train_questions, truncation=True, padding=True)
-    val_encodings = tokenizer(eval_contexts, eval_questions, truncation=True, padding=True)
+    train_encodings = tokenizer(train_contexts, train_questions, max_length=510, truncation=True, padding=True)
+    val_encodings = tokenizer(eval_contexts, eval_questions, max_length=510, truncation=True, padding=True)
 
     add_token_positions(train_encodings, train_answers, tokenizer)
     add_token_positions(val_encodings, eval_answers, tokenizer)
@@ -100,4 +108,3 @@ def tokenize(tokenizer, question_label, training_test_len=None, eval_test_len=No
 
 if __name__ == '__main__':
     pass
-
