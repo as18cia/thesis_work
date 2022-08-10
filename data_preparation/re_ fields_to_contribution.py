@@ -21,7 +21,7 @@ class ReFieldsToContribution:
         Creates the mapping from the ORKG Research fields to the ORKG Contributions
         """
         # load the re_field to paper csv
-        df = pd.read_csv("../data/ResearchFields_to_Papers.csv")
+        df = pd.read_csv("../data/processed/ResearchFields_to_Papers.csv")
 
         # get relevant papers
         papers = set()

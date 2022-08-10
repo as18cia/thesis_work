@@ -24,12 +24,12 @@ class FinalTouches:
         return df
 
     def finalize(self):
-        df = pd.read_csv("../data/ResearchField_to_papers_to_abstract_to_contribution_statements.csv")
+        df = pd.read_csv("../data/processed/ResearchField_to_papers_to_abstract_to_contribution_statements.csv")
         df = self._remove_unwanted_rows(df)
         df = self._removing_duplicates(df)
         df = self._is_in_abstract(df)
         df = self._object_label_categorization(df)
-        df.to_csv("../data/finale_dataset.csv", index=False)
+        df.to_csv("../data/processed/finale_dataset.csv", index=False)
 
     @staticmethod
     def _remove_unwanted_rows(df):

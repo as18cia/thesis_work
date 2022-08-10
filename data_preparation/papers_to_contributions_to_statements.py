@@ -16,7 +16,7 @@ class PaperToContributionToStatements:
         self.caller = MultiThreadCaller()
 
     def get_statements_for_contributions(self):
-        df = pd.read_csv("../data/ResearchField_to_papers_to_abstract_to_Contribution.csv")
+        df = pd.read_csv("../data/processed/ResearchField_to_papers_to_abstract_to_Contribution.csv")
         contributions = list(set(df["Contribution"].tolist()))
         callable_fun = self.client.get_statement_based_on_predicate
         statements = self.caller.run(contributions, callable_fun, 50)
@@ -46,10 +46,10 @@ class PaperToContributionToStatements:
         df = pd.DataFrame(mappings,
                           columns=["ResearchFieldId", "ResearchFieldLabel", "PaperId",
                                    "PaperTitle", "PaperAbstract", "Contribution", "PredicateLabel", "ObjectLabel"])
-        df.to_csv("../data/ResearchField_to_papers_to_abstract_to_contribution_statements.csv", index=False)
+        df.to_csv("../data/processed/ResearchField_to_papers_to_abstract_to_contribution_statements.csv", index=False)
 
     def get_contributions_for_papers(self):
-        df = pd.read_csv("../data/re_field_to_paper_to_abstract.csv.csv")
+        df = pd.read_csv("../data/processed/re_field_to_paper_to_abstract.csv.csv")
         print(datetime.datetime.now())
         papers = list(set(df["PaperId"].tolist()))
         callable_fun = self.client.get_statement_based_on_predicate
@@ -79,7 +79,7 @@ class PaperToContributionToStatements:
         df = pd.DataFrame(mappings,
                           columns=["ResearchFieldId", "ResearchFieldLabel", "PaperId",
                                    "PaperTitle", "PaperAbstract", "Contribution"])
-        df.to_csv("../data/ResearchField_to_papers_to_abstract_to_Contribution.csv", index=False)
+        df.to_csv("../data/processed/ResearchField_to_papers_to_abstract_to_Contribution.csv", index=False)
 
 
 if __name__ == '__main__':

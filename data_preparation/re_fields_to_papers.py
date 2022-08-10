@@ -54,14 +54,14 @@ class ReFieldsToPapers:
         # saving the results to a csv file
         df = pd.DataFrame(research_field_to_papers_list,
                           columns=["ResearchFieldId", "ResearchFieldLabel", "#OfPapers", "PaperIds"])
-        df.to_csv("../data/ResearchFields_to_Papers.csv", index=False)
+        df.to_csv("../data/processed/ResearchFields_to_Papers.csv", index=False)
 
     @staticmethod
     def create_paper_to_re_mapping():
         """"
         From the ResearchFields_to_Papers mapping creates a python dictionary for use by other functions
         """
-        df = pd.read_csv("../data/ResearchFields_to_Papers.csv")
+        df = pd.read_csv("../data/processed/ResearchFields_to_Papers.csv")
         mapping = {}
         for i, data in df.iterrows():
             re_f_l = data["ResearchFieldLabel"]
@@ -80,7 +80,7 @@ class ReFieldsToPapers:
     def flatten_mapping(self):
         papers = self.client.get_resources_by_class("Paper")
         paper_id_to_title = {item[0]: item[1] for item in papers}
-        df = pd.read_csv("../data/ResearchFields_to_Papers.csv")
+        df = pd.read_csv("../data/processed/ResearchFields_to_Papers.csv")
 
         mappings = []
         for i, data in df.iterrows():
@@ -90,7 +90,7 @@ class ReFieldsToPapers:
 
         df = pd.DataFrame(mappings,
                           columns=["ResearchFieldId", "ResearchFieldLabel", "PaperId", "PaperTitle"])
-        df.to_csv("../data/ResearchFields_to_Papers_flattened.csv", index=False)
+        df.to_csv("../data/processed/ResearchFields_to_Papers_flattened.csv", index=False)
 
 
 """"
