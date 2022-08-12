@@ -28,6 +28,7 @@ class FinalTouches:
         df = self._remove_unwanted_rows(df)
         df = self._removing_duplicates(df)
         df = self._is_in_abstract(df)
+        df = self._drop_not_in_abstract(df)
         df = self._object_label_categorization(df)
         df.to_csv("../data/processed/finale_dataset.csv", index=False)
 
@@ -65,6 +66,17 @@ class FinalTouches:
                 df.at[i, "ObjectInAbstract"] = True
             else:
                 df.at[i, "ObjectInAbstract"] = False
+        return
+
+    @staticmethod
+    def _drop_not_in_abstract(df):
+        to_drop = []
+        for i, data in df.iterrows():
+            if data["ObjectInAbstract"] is True:
+                continue
+            to_drop.append(i)
+
+        df = df.drop(df.index[to_drop])
         return df
 
     @staticmethod
@@ -107,6 +119,6 @@ class FinalTouches:
                 df.at[i, "Category"] = "number"
                 break
 
-            # todo: this could/should be extended for phrases, acronyms and other categories
+            # todo: this should be extended for phrases, acronyms and other categories
 
         return df

@@ -1,0 +1,12 @@
+
+
+* dataset info
+    * len(abstracts)
+    * comparison between number of tokens returned base vs trained
+    * other shit you might think of
+    * change model names
+    * _ in based models results
+    * would it be enought to upload only the best models to hugginface ?
+
+
+* what to show
