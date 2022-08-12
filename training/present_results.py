@@ -68,24 +68,29 @@ class ResultPresenter:
                     path = target_path[0] + "/eval_results/eval.csv"
                     df = pd.read_csv(path)
                     predication = df["predict_answer"].tolist()
+                    expected = df["answer"].tolist()
                     number_of_tokens_predicted = sum([len(str(item).strip().split(" ")) for item in predication])
-                    results.append((model, lr, question, '{:.1f}'.format(number_of_tokens_predicted / len(df))))
+                    expected_tokens = sum([len(str(item).strip().split(" ")) for item in expected]) / len(df)
+                    results.append((model, lr, question, '{:.1f}'.format(expected_tokens),
+                                    '{:.1f}'.format(number_of_tokens_predicted / len(df))))
         print("trained models")
-        print(tabulate(results, headers=['model', 'lr', 'questions', 'tokens_predicted_per_question']))
+        print(
+            tabulate(results, headers=['model', 'lr', 'questions', 'expected_tokens', 'avg_tokens_predicted_per_question']))
 
         print("base models")
         results = []
         for model in self.model_names:
             model = model.replace("/", "_")
             for lr in self.learning_rates:
-                for question in  ["_", "what", "how", "which"]:
+                for question in ["_", "what", "how", "which"]:
                     path = f"../data/results/base_models_results/{model}/{question}/eval.csv"
                     df = pd.read_csv(path)
                     predication = df["predict_answer"].tolist()
                     number_of_tokens_predicted = sum([len(str(item).strip().split(" ")) for item in predication])
-                    results.append((model, None, question, '{:.1f}'.format(number_of_tokens_predicted / len(df))))
+                    results.append((model, "------", question, 2.4, '{:.1f}'.format(number_of_tokens_predicted / len(df))))
 
-        print(tabulate(results, headers=['model', 'lr', 'questions', 'tokens_predicted_per_question']))
+        print(
+            tabulate(results, headers=['model', 'lr', 'questions', 'expected_tokens', 'avg_tokens_predicted_per_question']))
 
 
 if __name__ == '__main__':

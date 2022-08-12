@@ -1,12 +1,22 @@
 
 
 * dataset info
-    * len(abstracts)
-    * comparison between number of tokens returned base vs trained
     * other shit you might think of
     * change model names
-    * _ in based models results
     * would it be enought to upload only the best models to hugginface ?
 
+* csv label_names -> upper
+* _ in based models results
 
-* what to show
+
+
+
+# todo: are the abstracts unique
+# todo: the deduplication should probably be on (abstract, predicate, object) -> report
+
+
+# training data stats
+# todo: clean code and upload to orkg
+# todo: upload models to huggingface\
+# todo: provide stats:
+# orkg data -> check beginning

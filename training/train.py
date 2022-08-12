@@ -190,18 +190,4 @@ class TrainAndEvaluation:
         return recall, precision, f1
 
 
-# training data stats
-# todo: clean code and upload to orkg
-# todo: upload models to huggingface\
-# todo: data analysis -> len of abstracts -> percentages of training vs eval data ... and
-# truncation thing
-# todo: provide stats:
-# orkg data -> check beginning
-# training data and stuff
-# scores and categories stats
-# todo: naming the models
-# todo: how many abstracts have been truncated
 
-
-# now :
-# * rename models

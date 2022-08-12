@@ -1,12 +1,12 @@
 import pandas as pd
 from tabulate import tabulate
 
+
 class CategoryLevelEvaluation:
 
     def __init__(self):
         self.prediction_data: pd.DataFrame = pd.read_csv(
-            "../data/results/trained_models_results/deepset_roberta-base-squad2/_/0.0001/2022-08-03 "
-            "05.57.04.355474/eval_results/eval.csv")
+            "../data/results/trained_models_results/deepset_roberta-base-squad2/_how/0.0001/2022-08-03 03.37.17.568763/eval_results/eval.csv")
         self.complete_dataset = pd.DataFrame = pd.read_csv("../data/processed/finale_data_set.csv")
 
     def merge(self):
@@ -14,7 +14,7 @@ class CategoryLevelEvaluation:
         df_predicted = self.prediction_data.drop_duplicates()
 
         for i, data in df_predicted.iterrows():
-            df_predicted.at[i, "question"] = data["question"][:-1].strip()
+            df_predicted.at[i, "question"] = data["question"][:-1].strip("how").strip()
 
             df_predicted.at[i, "answer"] = data["answer"].strip()
             df_predicted.at[i, "abstract"] = data["abstract"].strip()
@@ -28,37 +28,29 @@ class CategoryLevelEvaluation:
                                     right_on=["paper_abstract", "predicate_label", "object_label"], how="left")
         merged = merged.drop_duplicates()
 
-        # print(df_predicted.count())
-        # print("*********")
-        # print(merged.count())
-
         return merged
 
-    def calculate_metrics(self, df):
-
+    def calculate_metrics(self, df, metric):
         results = []
         cats = list(set(df["ner"]))
         for c in cats:
             dft = df[df["ner"] == c]
-            results.append((c, len(dft), '{:.1f}'.format(self._calculate_metrics(dft))))
+            results.append((c, len(dft), '{:.1f}'.format(self._calculate_metrics(dft, metric))))
 
         results.sort(key=lambda x: x[2])
+        print("\ndeepset_roberta-base-squad2 \t question: how \t lr: 0.0001 \t overall containment: 51.2\n")
         print(tabulate(results, headers=['category', 'number_of_rows', 'accuracy_of_prediction']))
-        print("*****")
-        print(len(df[df["exact_match"] == True]) / len(df) * 100)
 
+        # print(len(df[df["containment_match"] == True]) / len(df) * 100)
 
     @staticmethod
-    def _calculate_metrics(df):
+    def _calculate_metrics(df, metric):
         l = len(df)
-        exact_l = len(df[df["exact_match"] == True])
+        exact_l = len(df[df[metric] == True])
         return exact_l / l * 100
 
 
 if __name__ == '__main__':
     cc = CategoryLevelEvaluation()
     r_df = cc.merge()
-    cc.calculate_metrics(r_df)
-
-# todo: are the abstracts unique
-# todo: the deduplication should probably be on (abstract, predicate, object) -> report
+    cc.calculate_metrics(r_df, "containment_match")
