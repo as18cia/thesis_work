@@ -28,8 +28,6 @@ def main():
     ft = FinalTouches()
     ft.finalize()
 
-
-
     # the last step is to split the data
     slt = SplitData()
     slt.split_training_and_evaluation()
