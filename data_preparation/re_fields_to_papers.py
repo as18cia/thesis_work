@@ -3,7 +3,6 @@ import pandas as pd
 
 from data_preparation.multi_thread_caller import MultiThreadCaller
 from data_preparation.orkg_client import OrkgClient
-from path_creator import path
 
 
 class ReFieldsToPapers:

@@ -45,9 +45,33 @@ class DataSetStats:
         results.sort(key=lambda x: float(x[1]), reverse=True)
         print(tabulate(results, headers=['category', 'percentage_of_data'], numalign="right"))
 
+    def contribution_distribution(self):
+        import matplotlib.pyplot as plt
+        import numpy as np
+        data = pd.read_csv(r"C:\Users\mhrou\Desktop\ResearchFields_to_Contributions.csv")
+        re_fields = [x for x in range(len(data["ResearchFieldLabel"]))][1:]
+        number_of_contributions = data["#OfContributions"][1:]
+
+
+        fig = plt.figure()
+
+
+        plt.bar(re_fields, number_of_contributions, 0.95, color='b')
+        plt.xlabel("research fields (names omitted)")
+        plt.ylabel("number of contributions")
+        plt.show()
+
+    def place_holder_1(self):
+        data = pd.read_csv(r"C:\Users\mhrou\Desktop\merged_statements_to_abstracts_v2.csv")
+        print(data.count())
+        print(data.nunique())
+
 
 if __name__ == '__main__':
     d = DataSetStats()
-    d.calculate_general_stats()
-    print("\n        ******** Category stats ********\n")
-    d.category_stats()
+    # d.calculate_general_stats()
+    # print("\n        ******** Category stats ********\n")
+    # d.category_stats()
+
+
+    d.contribution_distribution()

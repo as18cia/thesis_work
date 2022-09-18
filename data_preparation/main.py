@@ -33,5 +33,9 @@ def main():
     slt.split_training_and_evaluation()
 
 
+    #*******************
+    # creating ** re_field <-> papers ** mapping
+    # paper to abstract ->
+
 if __name__ == '__main__':
     main()

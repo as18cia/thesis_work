@@ -2,12 +2,14 @@ import re
 
 import numpy as np
 import pandas as pd
-
+import spacy
 
 class FinalTouches:
 
     def __init__(self):
-        pass
+        # make sure to download the pipeline first
+        # python -m spacy download en_core_web_sm
+        nlp = spacy.load("en_core_web_sm")
 
     @staticmethod
     def _is_in_abstract(df: pd.DataFrame):
@@ -96,6 +98,12 @@ class FinalTouches:
                 df.at[i, "Category"] = "research problem"
                 break
 
+            # years/date
+            if data["ObjectLabel"].isdigit():
+                if 1000 <= int(data["ObjectLabel"]) < 2100:
+                    df.at[i, "Category"] = "year/date"
+                    break
+
             # urls
             if label.startswith("http"):
                 df.at[i, "Category"] = "url"
@@ -107,6 +115,10 @@ class FinalTouches:
                 df.at[i, "Category"] = "location"
                 break
 
+            if label.lstrip('-').replace('.', '', 1).replace(',', '').isdigit():
+                df.at[i, "Category"] = "number"
+                break
+
             # todo: this might need some testing
             # check if unit measure
             s = label.split(" ")
@@ -115,10 +127,43 @@ class FinalTouches:
                     df.at[i, "Category"] = "count/measurement"
                     break
 
-            if label.lstrip('-').replace('.', '', 1).replace(',', '').isdigit():
-                df.at[i, "Category"] = "number"
-                break
+            # checking for nouns / adjectives
+            label_tokens = label.split(" ")
+            if len(label_tokens) == 1:
+                doc = nlp(label)
+                pos = list(set([token.pos_ for token in doc]))[0]
+                if pos == "ADJ":
+                    df.at[i, "Category"] = "adj"
+                    break
+                if pos == "NOUN":
+                    df.at[i, "Category"] = "noun"
+                    break
+                else:
+                    df.at[i, "Category"] = "unkown"
+                    break
+
+            # checking for noun phrases and adj phrases
+
 
             # todo: this should be extended for phrases, acronyms and other categories
 
         return df
+
+if __name__ == '__main__':
+    import spacy
+
+    # Load English tokenizer, tagger, parser and NER
+    nlp = spacy.load("en_core_web_sm")
+
+    # Process whole documents
+    text = ("smart girl")
+    doc = nlp(text)
+
+    # Analyze syntax
+    print("Noun phrases:", [chunk.text for chunk in doc.noun_chunks])
+    print("Verbs:", [token.lemma_ for token in doc if token.pos_ == "ADJ"])
+    print("Verbs:", [token.pos_ for token in doc])
+
+    # Find named entities, phrases and concepts
+    for entity in doc.ents:
+        print(entity.text, entity.doc)
