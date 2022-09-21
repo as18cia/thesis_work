@@ -17,6 +17,11 @@ class ReFieldsToPapers:
     def get_research_field_to_papers(self):
         """"
         Creates the ResearchFields_to_Papers.csv file
+        the creates a mapping from the research fields to the papers under them in the ORKG
+        ex:
+            science: [paper1, paper2]
+            mathematics: [paper101]
+            ....
         """
         # getting all papers from the orkg client
         papers = self.client.get_resources_by_class("Paper")
@@ -55,28 +60,15 @@ class ReFieldsToPapers:
                           columns=["ResearchFieldId", "ResearchFieldLabel", "#OfPapers", "PaperIds"])
         df.to_csv("../data/processed/ResearchFields_to_Papers.csv", index=False)
 
-    @staticmethod
-    def create_paper_to_re_mapping():
-        """"
-        From the ResearchFields_to_Papers mapping creates a python dictionary for use by other functions
-        """
-        df = pd.read_csv("../data/processed/ResearchFields_to_Papers.csv")
-        mapping = {}
-        for i, data in df.iterrows():
-            re_f_l = data["ResearchFieldLabel"]
-            re_f_id = data["ResearchFieldId"]
-            paper_ids = ast.literal_eval(data["PaperIds"])
-            for p in paper_ids:
-                if p not in mapping:
-                    mapping[p] = {
-                        "research_field_label": re_f_l,
-                        "research_field_id": re_f_id
-                    }
-                else:
-                    print("found one")
-        return mapping
-
     def flatten_mapping(self):
+        """
+         This function flatten the mapping from research fields to papers in the ResearchFields_to_Papers.csv
+         ex:
+            science: paper1
+            science: paper2
+            math: paper3
+
+        """
         papers = self.client.get_resources_by_class("Paper")
         paper_id_to_title = {item[0]: item[1] for item in papers}
         df = pd.read_csv("../data/processed/ResearchFields_to_Papers.csv")
@@ -90,11 +82,3 @@ class ReFieldsToPapers:
         df = pd.DataFrame(mappings,
                           columns=["ResearchFieldId", "ResearchFieldLabel", "PaperId", "PaperTitle"])
         df.to_csv("../data/processed/ResearchFields_to_Papers_flattened.csv", index=False)
-
-
-""""
-The following section is for testing
-"""
-if __name__ == '__main__':
-    re = ReFieldsToPapers()
-    re.get_research_field_to_papers()

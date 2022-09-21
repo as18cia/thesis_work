@@ -6,7 +6,6 @@ import re
 from copy import deepcopy
 import pandas as pd
 
-import path_creator
 from collections import Counter
 from random import shuffle
 import json

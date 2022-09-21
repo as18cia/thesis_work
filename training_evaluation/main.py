@@ -1,7 +1,7 @@
-from training.train import TrainAndEvaluation
+from training_evaluation.train_and_evaluate import TrainAndEvaluation
 
 
-def main():
+def run():
     if __name__ == '__main__':
         # https://huggingface.co/distilbert-base-cased-distilled-squad
         # https://huggingface.co/deepset/roberta-base-squad2
@@ -21,4 +21,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run()

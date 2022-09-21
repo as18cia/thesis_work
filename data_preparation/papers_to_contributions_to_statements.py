@@ -15,8 +15,46 @@ class PaperToContributionToStatements:
         self.client = OrkgClient()
         self.caller = MultiThreadCaller()
 
+    def get_contributions_for_papers(self):
+        """
+        for each paper in the csv file from last step we fetch the contributions
+        """
+        df = pd.read_csv("../data/processed/ResearchFields_to_Papers_flattened.csv")
+        papers = list(set(df["PaperId"].tolist()))
+        callable_fun = self.client.get_statement_based_on_predicate
+        contributions = self.caller.run(papers, callable_fun, 50, "P31")
+        print(datetime.datetime.now())
+
+        papers_to_contributions = {}
+        for item in contributions:
+            if item["subject"]["id"] not in papers_to_contributions:
+                papers_to_contributions[item["subject"]["id"]] = set()
+                papers_to_contributions[item["subject"]["id"]].add(item["object"]["id"])
+            else:
+                papers_to_contributions[item["subject"]["id"]].add(item["object"]["id"])
+
+        mappings = []
+        for i, data in df.iterrows():
+            if data["PaperId"] not in papers_to_contributions:
+                print(data["PaperId"] + " does not have a Contribution")
+                continue
+
+            contributions = papers_to_contributions[data["PaperId"]]
+            for c in contributions:
+                d = [i for i in data]
+                d.append(c)
+                mappings.append(d)
+
+        df = pd.DataFrame(mappings,
+                          columns=["ResearchFieldId", "ResearchFieldLabel", "PaperId",
+                                   "PaperTitle", "Contribution"])
+        df.to_csv("../data/processed/ResearchField_to_papers_to_Contribution.csv", index=False)
+
     def get_statements_for_contributions(self):
-        df = pd.read_csv("../data/processed/ResearchField_to_papers_to_abstract_to_Contribution.csv")
+        """
+        from each contribution we fetch the related statements
+        """
+        df = pd.read_csv("../data/processed/ResearchField_to_papers_to_Contribution.csv")
         contributions = list(set(df["Contribution"].tolist()))
         callable_fun = self.client.get_statement_based_on_predicate
         statements = self.caller.run(contributions, callable_fun, 50)
@@ -45,43 +83,5 @@ class PaperToContributionToStatements:
 
         df = pd.DataFrame(mappings,
                           columns=["ResearchFieldId", "ResearchFieldLabel", "PaperId",
-                                   "PaperTitle", "PaperAbstract", "Contribution", "PredicateLabel", "ObjectLabel"])
-        df.to_csv("../data/processed/ResearchField_to_papers_to_abstract_to_contribution_statements.csv", index=False)
-
-    def get_contributions_for_papers(self):
-        df = pd.read_csv("../data/processed/re_field_to_paper_to_abstract.csv.csv")
-        print(datetime.datetime.now())
-        papers = list(set(df["PaperId"].tolist()))
-        callable_fun = self.client.get_statement_based_on_predicate
-        contributions = self.caller.run(papers, callable_fun, 50, "P31")
-        print(datetime.datetime.now())
-
-        papers_to_contributions = {}
-        for item in contributions:
-            if item["subject"]["id"] not in papers_to_contributions:
-                papers_to_contributions[item["subject"]["id"]] = set()
-                papers_to_contributions[item["subject"]["id"]].add(item["object"]["id"])
-            else:
-                papers_to_contributions[item["subject"]["id"]].add(item["object"]["id"])
-
-        mappings = []
-        for i, data in df.iterrows():
-            if data["PaperId"] not in papers_to_contributions:
-                print(data["PaperId"] + " does not have a Contribution")
-                continue
-
-            contributions = papers_to_contributions[data["PaperId"]]
-            for c in contributions:
-                d = [i for i in data]
-                d.append(c)
-                mappings.append(d)
-
-        df = pd.DataFrame(mappings,
-                          columns=["ResearchFieldId", "ResearchFieldLabel", "PaperId",
-                                   "PaperTitle", "PaperAbstract", "Contribution"])
-        df.to_csv("../data/processed/ResearchField_to_papers_to_abstract_to_Contribution.csv", index=False)
-
-
-if __name__ == '__main__':
-    p = PaperToContributionToStatements()
-    p.get_contributions_for_papers()
+                                   "PaperTitle", "Contribution", "PredicateLabel", "ObjectLabel"])
+        df.to_csv("../data/processed/ResearchField_to_papers_to_contribution_statements.csv", index=False)

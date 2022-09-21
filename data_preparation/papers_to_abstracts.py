@@ -6,12 +6,15 @@ from data_preparation.fetch_abstracts import MetadataService
 
 
 class PapersToAbstracts:
+    """
+    This class fetches abstracts for papers, using the Meta service written by Omar Arab Oghli.
+    """
 
     def __init__(self):
         self.abstract_fetcher = MetadataService()
 
     def get_abstracts_for_papers(self):
-        df = pd.read_csv("../data/processed/ResearchFields_to_Papers_flattened.csv")
+        df = pd.read_csv("../data/processed/ResearchField_to_papers_to_contribution_statements.csv")
         failed_ids = set()
         df["PaperAbstract"] = np.nan
 
@@ -21,9 +24,8 @@ class PapersToAbstracts:
                     df.at[i, "PaperAbstract"] = self.abstract_fetcher.by_title(data["PaperTitle"])
                 except:
                     failed_ids.add(data["PaperId"])
-            if i == 50:
-                break
 
-        df.to_csv("../data/processed/re_field_to_paper_to_abstract.csv.csv", index=False)
+        df.to_csv("../data/processed/ResearchField_to_papers_to_contribution_statements_with_abstract.csv", index=False)
         df_failed = pd.DataFrame(list(failed_ids), columns=["Id"])
-        df_failed.to_csv("../data/processed/abstract_failed.csv", index=False)
+        df_failed.to_csv("../data/processed/failed_abstracts.csv",
+                         index=False)

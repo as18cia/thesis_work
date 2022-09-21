@@ -6,36 +6,28 @@ from data_preparation.split_data import SplitData
 
 
 def main():
-    # creating ** re_field <-> papers ** mapping
+    # step 1: creating ** re_field <-> papers ** mapping (research field to list of corresponding papers)
     re = ReFieldsToPapers()
     re.get_research_field_to_papers()
-
-    # creating re_field -> paper_id -> papers_title
     re.flatten_mapping()
 
-    # creating ** re_field <-> paper <-> abstract ** mapping
+    # step 2: creating ** re_field -> paper -> contribution -> statements
+    to_contribution = PaperToContributionToStatements()
+    to_contribution.get_contributions_for_papers()
+    to_contribution.get_statements_for_contributions()
+
+    # step 3: creating ** re_field <-> paper <-> abstract ** mapping
     to_abstract = PapersToAbstracts()
     to_abstract.get_abstracts_for_papers()
 
-    # creating ** re_field -> paper -> abstract -> contribution
-    to_contribution = PaperToContributionToStatements()
-    to_contribution.get_contributions_for_papers()
-
-    # creating ** re_field -> paper -> abstract -> contribution -> statements
-    to_contribution.get_statements_for_contributions()
-
-    # categorizing object labels
+    # # step 4: categorizing object labels
     ft = FinalTouches()
     ft.finalize()
 
-    # the last step is to split the data
+    # step 5: the last step is to split the data
     slt = SplitData()
     slt.split_training_and_evaluation()
 
-
-    #*******************
-    # creating ** re_field <-> papers ** mapping
-    # paper to abstract ->
 
 if __name__ == '__main__':
     main()

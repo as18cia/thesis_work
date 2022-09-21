@@ -9,8 +9,8 @@ from tqdm import tqdm
 from transformers import AutoModelForQuestionAnswering, AutoTokenizer, TrainingArguments, IntervalStrategy, Trainer
 from transformers import default_data_collator
 
-from training.my_data_set import MyDataset
-from training.my_tokenizer import Tokenizer
+from training_evaluation.my_data_set import MyDataset
+from training_evaluation.my_tokenizer import Tokenizer
 
 
 class TrainAndEvaluation:
@@ -53,7 +53,6 @@ class TrainAndEvaluation:
             num_train_epochs=self.epochs,
             weight_decay=0.01,
             load_best_model_at_end=True
-
         )
 
         trainer = Trainer(
@@ -187,6 +186,3 @@ class TrainAndEvaluation:
         precision = correct_predicted_tokens / predicted_tokens
         f1 = (2 * recall * precision) / (recall + precision)
         return recall, precision, f1
-
-
-
