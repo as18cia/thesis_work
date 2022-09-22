@@ -1,65 +1,44 @@
 # Overview
 
+This code is written to fulfill the requirements of my bachelor thesis
+
 ### Aims
-This code is part of my bachelor thesis.
-I finetune Squad v2 based models using data from the orkg to predict object labels
+
+The Objective is to fine-tune models for the ORKG completion.
 
 ### Approach
+
 The approach is simple; I prepared ORKG data and format it to a QA with context dataset
 and use it to train models already pretrained using the Squad v2 dataset
 
-
 # How to Run
 
+first prepare the dataset -> for this run the ./data_preparation/main.py
+second run the ./training_evaluation/main.py to train and evaluate the models
+
 ### Prerequisites
+
 Experience with python might be needed to understand and run the script
 
 ### Software Dependencies
+
 All the dependencies are described in the ./requirements.txt
 you can use 'pip install -r requirements.txt' to install the dependencies
 The script was written using Python version 3.10 (other version might also be compatible)
 
-
+Also, you need to run "python -m spacy download en_core_web_sm" to download the spacy pipeline we use in the data
+preparation part of the script
 
 ### Service Retraining
-Here some text about how to re-build the dataset and re-train the model.
 
-git clone <link to your repository>
-cd <repository directory>
-pip install -r requirements.txt
-python -m src.main [any necessary arguments]
-
-
-or
-
-git clone <link to your repository>
-cd <repository directory>
-pip install -r requirements.txt
-python -m src.main -s dataset [any necessary arguments]
-// intermediate step e.g.: run notebooks/train.ipynb and store the output model locally.
-python -m src.main -s evaluate [any necessary arguments]
-
-
-
-Service Integration
-Here some text about how to use the existing model as an End-to-End service. Please consider
-following the integration requirements
-if you want your service to be integrated into orkgnlp.
-
-git clone <link to your repository>
-cd <repository directory>
-pip install -r requirements.txt
-python -m src.models.predict [any necessary arguments]
-
-
+Follow the ./data_preparation/README.md file and the ./training_evaluation/README.md file
 
 ### Contribution
+
 This service is developed by:
-Moussab, Hrou asv3.771g@gmail.com
-
-
-
-### License
+Moussab Hrou, moussab.hrou@stud.uni-hannover.de
 
 ### References
-The code in ./data_preparation/fetch_abstracts.py is from [link](https://gitlab.com/TIBHannover/orkg/orkg-bioassays-semantification/-/blob/master/services/metadata.py)
+
+The code in ./data_preparation/fetch_abstracts.py is
+from [link](https://gitlab.com/TIBHannover/orkg/orkg-bioassays-semantification/-/blob/master/services/metadata.py)

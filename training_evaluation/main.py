@@ -14,7 +14,7 @@ def run():
                     # user the training_test_len and eval_test_len to test with smaller number or entries
                     tr = TrainAndEvaluation(model_name=model, question_label=label,
                                             cased_model=c,
-                                            learning_rate=lr, epochs=1, training_test_len=40, eval_test_len=20)
+                                            learning_rate=lr, epochs=4, training_test_len=40, eval_test_len=20)
 
                     tr.train()
                     tr.evaluate()

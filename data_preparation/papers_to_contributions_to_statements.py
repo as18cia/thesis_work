@@ -1,9 +1,5 @@
-import ast
 import datetime
-
-import numpy as np
 import pandas as pd
-from tqdm import tqdm
 
 from data_preparation.multi_thread_caller import MultiThreadCaller
 from data_preparation.orkg_client import OrkgClient

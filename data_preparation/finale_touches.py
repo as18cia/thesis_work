@@ -9,7 +9,7 @@ import spacy
 class FinalTouches:
 
     def __init__(self):
-        # os.system("python -m spacy download en_core_web_sm")
+        # todo: don't forget to run "python -m spacy download en_core_web_sm" to download the pipeline
         self.nlp = spacy.load("en_core_web_sm")
 
     @staticmethod
