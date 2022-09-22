@@ -44,7 +44,7 @@ class TrainAndEvaluation:
     def train(self):
 
         training_args = TrainingArguments(
-            output_dir='../data/results/temp',
+            output_dir='../data/temp_files/temp',
             evaluation_strategy=IntervalStrategy.EPOCH,
             save_strategy=IntervalStrategy.EPOCH,
             learning_rate=self.learning_rate,
@@ -69,7 +69,7 @@ class TrainAndEvaluation:
         # creating path to save the trained model
         local_time = datetime.datetime.now()
 
-        folder = "../data/results/trained_models_results/{}/{}/{}/{}".format(self.model_name.replace("/", "_"),
+        folder = "../data/trained_models_results/{}/{}/{}/{}".format(self.model_name.replace("/", "_"),
                                                                              "_" + self.question_label,
                                                                              str(self.learning_rate),
                                                                              local_time.__str__().replace(":",
